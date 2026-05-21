@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AH1 Room Availability Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="box-arrow-in-right" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">AH1 Analytics Portal</h1>
+                    <p class="text-xs text-slate-500 font-medium">Room Inventory & Availability Management</p>
+                </div>
+            </div>
+            <div class="text-sm bg-indigo-50 border border-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-full" id="lastUpdated">
+                Live Session
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Rooms Tracker</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1" id="statTotal">0</h3>
+                </div>
+                <div class="p-3 bg-slate-100 text-slate-600 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Available Capacity</p>
+                    <h3 class="text-3xl font-bold text-emerald-600 mt-1" id="statAvailable">0</h3>
+                </div>
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Occupied Inventory</p>
+                    <h3 class="text-3xl font-bold text-rose-600 mt-1" id="statOccupied">0</h3>
+                </div>
+                <div class="p-3 bg-rose-50 text-rose-600 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+            
+            <div class="space-y-6 lg:col-span-1">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-5">
+                    <h2 class="text-sm font-semibold text-slate-900 tracking-wide uppercase border-b border-slate-100 pb-3">Filters & Discovery</h2>
+                    
+                    <div class="space-y-2">
+                        <label for="searchInput" class="block text-xs font-semibold text-slate-600 uppercase">Search Room</label>
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Type room #..." class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                            <div class="absolute left-3 top-2.5 text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase">Floor Selection</label>
+                        <div class="flex flex-col space-y-1" id="floorFiltersContainer">
+                            <button data-floor="all" class="floor-btn px-3 py-2 text-left text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-xs transition-all">All Floors</button>
+                            <button data-floor="1" class="floor-btn px-3 py-2 text-left text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">1st Floor</button>
+                            <button data-floor="2" class="floor-btn px-3 py-2 text-left text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">2nd Floor</button>
+                            <button data-floor="3" class="floor-btn px-3 py-2 text-left text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">3rd Floor</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase">Availability State</label>
+                        <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg" id="statusFiltersContainer">
+                            <button data-status="all" class="status-btn px-2 py-1.5 text-xs font-medium text-center rounded-md bg-white text-slate-900 shadow-xs transition-all">All</button>
+                            <button data-status="available" class="status-btn px-2 py-1.5 text-xs font-medium text-center rounded-md text-slate-600 hover:text-slate-900 transition-all">Avail.</button>
+                            <button data-status="occupied" class="status-btn px-2 py-1.5 text-xs font-medium text-center rounded-md text-slate-600 hover:text-slate-900 transition-all">Occ.</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+                    <h2 class="text-sm font-semibold text-slate-900 tracking-wide uppercase border-b border-slate-100 pb-3">Provision New Room</h2>
+                    <form id="addRoomForm" class="space-y-3.5">
+                        <div class="space-y-1.5">
+                            <label for="newRoomId" class="block text-xs font-semibold text-slate-600 uppercase">Room Number</label>
+                            <input type="number" id="newRoomId" required placeholder="e.g., 208" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="newRoomStatus" class="block text-xs font-semibold text-slate-600 uppercase">Initial Status</label>
+                            <select id="newRoomStatus" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                                <option value="available">Available</option>
+                                <option value="occupied">Occupied</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm transition-colors shadow-xs">
+                            Add to System Layout
+                        </button>
+                    </form>
+                </div>
+
+                <button id="resetDataBtn" class="w-full text-center text-xs text-slate-400 hover:text-rose-500 font-medium transition-colors py-2 cursor-pointer">
+                    Reset Dataset to Default Base
+                </button>
+            </div>
+
+            <div class="lg:col-span-3 space-y-4">
+                <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl px-5 py-3 shadow-xs">
+                    <div class="text-sm text-slate-600">
+                        Showing <span id="visibleCount" class="font-semibold text-slate-900">0</span> rooms matching current parameters
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-slate-400">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span> <span>Available</span>
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 ml-2"></span> <span>Occupied</span>
+                    </div>
+                </div>
+
+                <div id="roomsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
+                    </div>
+
+                <div id="emptyState" class="hidden bg-white border border-slate-200 rounded-xl p-12 text-center shadow-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-base font-semibold text-slate-900">No rooms match requirements</h3>
+                    <p class="text-sm text-slate-500 mt-1">Refine your search input string or adjust selection toggles.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Default historical state datasets processed from input criteria
+        const baseOccupiedDataset = [234, 235, 239, 258, 306, 315, 316, 319, 322, 329, 331, 335, 338, 341, 342, 348, 355, 360, 362];
+        const baseAvailableDataset = [110, 123, 126, 129, 133, 134, 135, 138, 140, 144, 147, 150, 151, 153, 154, 160, 202, 204, 205, 207, 214, 216, 219, 220, 221, 222, 225, 227, 237, 242, 243, 244, 245, 249, 253, 254, 259, 260, 261, 301, 307, 309, 310, 314, 321, 330, 333, 340, 347, 349, 351, 361];
+
+        // State Engines Core
+        let rooms = [];
+        let currentFloorFilter = 'all';
+        let currentStatusFilter = 'all';
+        let currentSearchQuery = '';
+
+        // Initialization engine
+        function initEngine() {
+            const savedData = localStorage.getItem('ah1_dashboard_rooms');
+            if (savedData) {
+                rooms = JSON.parse(savedData);
+            } else {
+                generateBaseDataset();
+            }
+            applyFiltersAndRenderGrid();
+        }
+
+        // Factory reset generator
+        function generateBaseDataset() {
+            rooms = [];
+            // Parse array definitions
+            baseAvailableDataset.forEach(id => {
+                rooms.push({ id: id.toString(), floor: parseInt(id.toString().charAt(0)), status: 'available' });
+            });
+            baseOccupiedDataset.forEach(id => {
+                rooms.push({ id: id.toString(), floor: parseInt(id.toString().charAt(0)), status: 'occupied' });
+            });
+            // Handle logical sorting
+            rooms.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            saveToStorage();
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('ah1_dashboard_rooms', JSON.stringify(rooms));
+        }
+
+        // Live calculation engine metrics updater
+        function updateMetrics(visibleRooms) {
+            const total = rooms.length;
+            const available = rooms.filter(r => r.status === 'available').length;
+            const occupied = rooms.filter(r => r.status === 'occupied').length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statAvailable').textContent = available;
+            document.getElementById('statOccupied').textContent = occupied;
+            document.getElementById('visibleCount').textContent = visibleRooms.length;
+        }
+
+        // Toggle engine routine
+        window.toggleRoomStatus = function(id) {
+            rooms = rooms.map(room => {
+                if (room.id === id) {
+                    return { ...room, status: room.status === 'available' ? 'occupied' : 'available' };
+                }
+                return room;
+            });
+            saveToStorage();
+            applyFiltersAndRenderGrid();
+        };
+
+        // Complete UI Redraw Matrix Pipeline
+        function applyFiltersAndRenderGrid() {
+            const filtered = rooms.filter(room => {
+                const matchFloor = currentFloorFilter === 'all' || room.floor.toString() === currentFloorFilter;
+                const matchStatus = currentStatusFilter === 'all' || room.status === currentStatusFilter;
+                const matchSearch = room.id.includes(currentSearchQuery.trim());
+                return matchFloor && matchStatus && matchSearch;
+            });
+
+            updateMetrics(filtered);
+
+            const gridContainer = document.getElementById('roomsGrid');
+            const emptyState = document.getElementById('emptyState');
+            gridContainer.innerHTML = '';
+
+            if (filtered.length === 0) {
+                gridContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            gridContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(room => {
+                const isAvailable = room.status === 'available';
+                const card = document.createElement('div');
+                card.className = `bg-white border p-4 rounded-xl transition-all shadow-2xs hover:shadow-md flex flex-col justify-between ${
+                    isAvailable ? 'border-emerald-100 hover:border-emerald-300' : 'border-rose-100 hover:border-rose-300'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Room</span>
+                            <h4 class="text-xl font-bold text-slate-900 tracking-tight">${room.id}</h4>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-slate-100 text-slate-500">
+                            Fl ${room.floor}
+                        </span>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-500">Status</span>
+                        <button onclick="toggleRoomStatus('${room.id}')" class="cursor-pointer text-xs font-semibold px-2.5 py-1 rounded-full shadow-2xs transition-all hover:scale-105 ${
+                            isAvailable 
+                                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100' 
+                                : 'bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100'
+                        }">
+                            ${isAvailable ? 'Available' : 'Occupied'}
+                        </button>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+
+        // Event listener orchestrations
+        document.addEventListener('DOMContentLoaded', () => {
+            initEngine();
+
+            // Setup real-time keyup query monitoring
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                currentSearchQuery = e.target.value;
+                applyFiltersAndRenderGrid();
+            });
+
+            // Tab selection routing for Floor controls
+            document.getElementById('floorFiltersContainer').addEventListener('click', (e) => {
+                const btn = e.target.closest('.floor-btn');
+                if (!btn) return;
+
+                document.querySelectorAll('.floor-btn').forEach(b => {
+                    b.className = "floor-btn px-3 py-2 text-left text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all";
+                });
+                btn.className = "floor-btn px-3 py-2 text-left text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-xs transition-all";
+
+                currentFloorFilter = btn.dataset.floor;
+                applyFiltersAndRenderGrid();
+            });
+
+            // Tab routing control metrics for Room Status changes
+            document.getElementById('statusFiltersContainer').addEventListener('click', (e) => {
+                const btn = e.target.closest('.status-btn');
+                if (!btn) return;
+
+                document.querySelectorAll('.status-btn').forEach(b => {
+                    b.className = "status-btn px-2 py-1.5 text-xs font-medium text-center rounded-md text-slate-600 hover:text-slate-900 transition-all";
+                });
+                btn.className = "status-btn px-2 py-1.5 text-xs font-medium text-center rounded-md bg-white text-slate-900 shadow-xs transition-all";
+
+                currentStatusFilter = btn.dataset.status;
+                applyFiltersAndRenderGrid();
+            });
+
+            // Interactive addition intercept submission
+            document.getElementById('addRoomForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const idInput = document.getElementById('newRoomId');
+                const statusSelect = document.getElementById('newRoomStatus');
+                
+                const id = idInput.value.trim();
+                if(!id || parseInt(id) <= 0) return;
+
+                // Validate uniqueness threshold
+                if(rooms.some(r => r.id === id)) {
+                    alert(`Room ${id} is already registered in the AH1 system.`);
+                    return;
+                }
+
+                const floor = parseInt(id.charAt(0));
+                if(isNaN(floor) || floor === 0) {
+                    alert('Invalid room structural formatting. Must begin with valid integer identifier mapping.');
+                    return;
+                }
+
+                rooms.push({ id, floor, status: statusSelect.value });
+                rooms.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                saveToStorage();
+                
+                // Clear state inputs
+                idInput.value = '';
+                statusSelect.value = 'available';
+
+                applyFiltersAndRenderGrid();
+                
+                // Print execution log event summary update
+                const banner = document.getElementById('lastUpdated');
+                banner.textContent = `Added Room ${id}`;
+                setTimeout(() => banner.textContent = 'Live Session', 3000);
+            });
+
+            // Total wipe clean down loop
+            document.getElementById('resetDataBtn').addEventListener('click', () => {
+                if(confirm('Are you sure you want to restore the layout back to your initial setup array? Custom rooms will be overwritten.')) {
+                    generateBaseDataset();
+                    applyFiltersAndRenderGrid();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
